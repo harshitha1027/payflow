@@ -1,0 +1,65 @@
+package com.example.payflow_backend.controller;
+
+import com.example.payflow_backend.model.Payroll;
+import com.example.payflow_backend.service.PayrollService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class PayrollController {
+
+    @Autowired
+    private PayrollService payrollService;
+
+    // MANAGER ENDPOINTS
+    @PostMapping("/payroll/schedule")
+    public ResponseEntity<String> schedulePayroll(@RequestParam Long employeeId,
+                                                  @RequestParam int month,
+                                                  @RequestParam int year) {
+        payrollService.schedulePayroll(employeeId, month, year);
+        return ResponseEntity.ok("Payroll scheduled");
+    }
+
+    @PutMapping("/payroll/hold/{id}")
+    public ResponseEntity<String> holdPayroll(@PathVariable Long id) {
+        payrollService.holdPayroll(id);
+        return ResponseEntity.ok("Payroll held");
+    }
+
+    @PutMapping("/payroll/cancel/{id}")
+    public ResponseEntity<String> cancelPayroll(@PathVariable Long id) {
+        payrollService.cancelPayroll(id);
+        return ResponseEntity.ok("Payroll cancelled");
+    }
+
+    @PutMapping("/payroll/retry/{id}")
+    public ResponseEntity<String> retryPayroll(@PathVariable Long id) {
+        payrollService.retryPayroll(id);
+        return ResponseEntity.ok("Payroll retried");
+    }
+
+    @GetMapping("/payroll")
+    public ResponseEntity<List<Payroll>> getPayrolls(@RequestParam int month,
+                                                     @RequestParam int year) {
+        List<Payroll> payrolls = payrollService.getPayrollsByMonthAndYear(month, year);
+        return ResponseEntity.ok(payrolls);
+    }
+
+    // EMPLOYEE ENDPOINT
+    @GetMapping("/payslip")
+    public ResponseEntity<Payroll> getPayslip(@RequestParam Long employeeId,
+                                              @RequestParam int month,
+                                              @RequestParam int year) {
+        Payroll payslip = payrollService.generatePayslip(employeeId, month, year);
+        return ResponseEntity.ok(payslip);
+    }
+    @PostMapping("/generate")
+    public ResponseEntity<?> generatePayroll(@RequestBody PayrollRequest request) {
+        payrollService.generatePayroll(request);
+        return ResponseEntity.ok("Payroll generated successfully");
+    }
+}

@@ -1,0 +1,53 @@
+package com.example.payflow_backend.controller;
+
+import com.example.payflow_backend.model.Payroll;
+import com.example.payflow_backend.service.PayrollService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+public class PayrollController {
+
+    private final PayrollService payrollService;
+
+    // For managers
+    @PostMapping("/payroll/schedule")
+    public Payroll schedule(@RequestParam Long employeeId,
+                            @RequestParam int month,
+                            @RequestParam int year) {
+        return payrollService.schedulePayroll(employeeId, month, year);
+    }
+
+    @PutMapping("/payroll/hold/{id}")
+    public Payroll hold(@PathVariable Long id) {
+        return payrollService.holdPayroll(id);
+    }
+
+    @PutMapping("/payroll/cancel/{id}")
+    public Payroll cancel(@PathVariable Long id) {
+        return payrollService.cancelPayroll(id);
+    }
+
+    @PutMapping("/payroll/retry/{id}")
+    public Payroll retry(@PathVariable Long id) {
+        return payrollService.retryPayroll(id);
+    }
+
+    @GetMapping("/payroll")
+    public List<Payroll> getAll(@RequestParam int month, @RequestParam int year) {
+        return payrollService.getPayrollsByMonthAndYear(month, year);
+    }
+
+    // For employees
+    @GetMapping("/payslip")
+    public Optional<Payroll> getPayslip(@RequestParam Long employeeId,
+                                        @RequestParam int month,
+                                        @RequestParam int year) {
+        return payrollService.generatePayslip(employeeId, month, year);
+    }
+}
